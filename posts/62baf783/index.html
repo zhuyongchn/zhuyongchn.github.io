@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="Zhu yong">
+  <meta name="keywords" content="">
+  <title>sdp(会话传输协议)详解 - Zhuyong&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":"UA-188637616-1","gtag":"G-VGC74JG6H1","tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhuyong's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="sdp(会话传输协议)详解">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-02-08 20:09" pubdate>
+        2021年2月8日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      30
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">sdp(会话传输协议)详解</h1>
+            
+            <div class="markdown-body">
+              <h4 id="1、什么是sdp"><a href="#1、什么是sdp" class="headerlink" title="1、什么是sdp"></a>1、什么是sdp</h4><p>SDP(Session Description Protocol)描述会话协议，它只是一种信息格式的描述标准，本身不属于传输协议，但是可以被其他传输协议用来交换必要的信息，用于两个会话实体之间的媒体协商。</p>
+<h4 id="2、sdp协议结构"><a href="#2、sdp协议结构" class="headerlink" title="2、sdp协议结构"></a>2、sdp协议结构</h4><h5 id="SDP的文本信息包括："><a href="#SDP的文本信息包括：" class="headerlink" title="SDP的文本信息包括："></a>SDP的文本信息包括：</h5><ul>
+<li>会话信息  </li>
+<li>网络信息  </li>
+<li>媒体信息  </li>
+<li>安全信息  </li>
+<li>服务质量和分组信息</li>
+</ul>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs gherkin"><br>                                                +---------------------+<br>                                                |<span class="hljs-string">        v=           </span>|<br>                                                +---------------------+<br>                +---------------------+         +---------------------+<br>        ====    |<span class="hljs-string">   Session Metadata  </span>|<span class="hljs-string">  =====  </span>|<span class="hljs-string">        o=           </span>|<br>        |<span class="hljs-string">       +---------------------+         +----------------------</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">        t=           </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<br>        |<br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">        c=           </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">       +---------------------+</span><br><span class="hljs-string">        ====    </span>|<span class="hljs-string"> Network Description </span>|<span class="hljs-string">   =====</span><br><span class="hljs-string">        </span>|<span class="hljs-string">       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">    a=candidate      </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<br>        |<br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">        m=           </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">        +---------------------+        +---------------------+</span><br><span class="hljs-string">        ====     </span>|<span class="hljs-string"> Stream Description  </span>|<span class="hljs-string">  ===== </span>|<span class="hljs-string">      a=rtpmap       </span>|<br>        |<span class="hljs-string">        +---------------------+        +----------------------</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">      a=fmtp         </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">      a=sendrecv..   </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">+---------------+</span><br>|<span class="hljs-string">    SEMANTIC   </span>|<br>|<span class="hljs-string"> COMPONENTS OF </span>|<br>|<span class="hljs-string">     SDP       </span>|<br>+---------------+<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">      a=crypto       </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">         +---------------------+       +---------------------+</span><br><span class="hljs-string">        ====      </span>|<span class="hljs-string">Security Descriptions</span>|<span class="hljs-string">  =====</span>|<span class="hljs-string">      a=ice-frag     </span>|<br>        |<span class="hljs-string">         +---------------------+       +----------------------</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">      a=ice-pwd      </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">     a=fingerprint   </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<br>        |<br><span class="hljs-string">        </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">                                       </span>|<span class="hljs-string">      a=rtcp-fb      </span>|<br>        |<span class="hljs-string">                                       +---------------------+</span><br><span class="hljs-string">        </span>|<span class="hljs-string">         +---------------------+       +---------------------+</span><br><span class="hljs-string">        ====      </span>|<span class="hljs-string">   Qos,Grouping      </span>|<span class="hljs-string">       </span>|<span class="hljs-string">                     </span>|<br>                  |<span class="hljs-string">   Descriptions      </span>|<span class="hljs-string">  =====</span>|<span class="hljs-string">       a=group       </span>|<br>                  +---------------------+       +----------------------<br>                                                +---------------------+<br>                                                |<span class="hljs-string">       a=rtcpmux     </span>|<br>                                                +---------------------+<br></code></pre></td></tr></table></figure>
+<h5 id="sdp格式"><a href="#sdp格式" class="headerlink" title="sdp格式"></a>sdp格式</h5><p>SDP描述由许多文本行组成，文本行的格式为&lt;类型&gt;=&lt;值&gt;，&lt;类型&gt;是一个字母，&lt;值&gt;是结构化的文本串，其格式依&lt;类型&gt;而定，每个SDP有一个会话级描述、多个媒体级描述。</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs excel">&lt;<span class="hljs-built_in">type</span>&gt;=&lt;<span class="hljs-built_in">value</span>&gt;<br><br>&lt;<span class="hljs-built_in">type</span>&gt;<span class="hljs-symbol">:</span> 区分大小写，代表特定的属性，例如v代表SDP版本。<br>&lt;<span class="hljs-built_in">value</span>&gt;：UTF8编码的文本，具体格式与类型有关。<br>=两边不允许存在空格。<br>=*表示该项是可选的。<br><br></code></pre></td></tr></table></figure>
+
+
+<p>会话的名称和目的 Session Description</p>
+<blockquote>
+<p>v = （协议版本）<br>o = （所有者/创建者和会话标识符）<br>s = （会话名称）<br>i = * （会话信息）<br>u = * （URI 描述）<br>e = * （Email 地址）<br>p = * （电话号码）<br>c = * （连接信息 ― 如果包含在所有媒体中，则不需要该字段）<br>b = * （带宽信息）  </p>
+</blockquote>
+<p>会话存活时间   Time Description</p>
+<blockquote>
+<p>t = （会话活动时间）<br>r = * （0或多次重复次数）  </p>
+</blockquote>
+<p>构成会话的媒体(会话中包括多个媒体)<br>SDP的媒体信息  Media Description<br>媒体格式<br>传输协议<br>传输IP和端口<br>媒体负载类型(VP8、VP9、H264、H265)  </p>
+<blockquote>
+<p>m = （媒体名称和传输地址）<br>i = * （媒体标题）<br>c = * （连接信息 — 如果包含在会话层则该字段可选）<br>b = * （带宽信息）<br>k = * （加密密钥）<br>a = * （0 个或多个会话属性行）  </p>
+</blockquote>
+<h4 id="3、sdp实例"><a href="#3、sdp实例" class="headerlink" title="3、sdp实例"></a>3、sdp实例</h4><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br></pre></td><td class="code"><pre><code class="hljs groovy">                      【Session Metadata部分】<br>v=<span class="hljs-number">0</span><br><span class="hljs-comment">//sdp版本号，一直为0,rfc4566规定</span><br><br>o=- <span class="hljs-number">7017624586836067756</span> <span class="hljs-number">2</span> IN IP4 <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span><br><span class="hljs-comment">//origion/owner  o=&lt;username&gt; &lt;session id&gt; &lt;version&gt; &lt;network type&gt; &lt;address type&gt; &lt;unicast-address&gt;</span><br><span class="hljs-comment">//username如何没有使用-代替，7017624586836067756是整个会话的编号，2代表会话版本，如果在会话</span><br><span class="hljs-comment">//过程中有改变编码之类的操作，重新生成sdp时,sess-id不变，sess-version加1</span><br><br>s=-<br><span class="hljs-comment">//会话名,必选，没有的话使用-代替</span><br><br>t=<span class="hljs-number">0</span> <span class="hljs-number">0</span><br><span class="hljs-comment">//两个值分别是会话的起始时间和结束时间，这里都是0代表没有限制</span><br><br>a=<span class="hljs-attr">group:</span>BUNDLE audio video data<br><span class="hljs-comment">//需要共用一个传输通道传输的媒体，如果没有这一行，音视频，数据就会分别单独用一个udp端口来发送</span><br><br>a=msid-<span class="hljs-attr">semantic:</span> WMS h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C<br><span class="hljs-comment">//WMS是WebRTC Media Stream简称，这一行定义了本客户端支持同时传输多个流，一个流可以包括多个track,</span><br><span class="hljs-comment">//一般定义了这个，后面a=ssrc这一行就会有msid,mslabel等属性</span><br><br>                          【Stream Description部分】<br>        <br>        【audio部分】<br>        <br>m=audio <span class="hljs-number">9</span> UDP<span class="hljs-regexp">/TLS/</span>RTP/SAVPF <span class="hljs-number">111</span> <span class="hljs-number">103</span> <span class="hljs-number">104</span> <span class="hljs-number">9</span> <span class="hljs-number">0</span> <span class="hljs-number">8</span> <span class="hljs-number">106</span> <span class="hljs-number">105</span> <span class="hljs-number">13</span> <span class="hljs-number">126</span><br><span class="hljs-comment">//m = &lt;media&gt;&lt;port&gt;&lt;transport&gt;&lt;fmt/payload type list&gt;</span><br><span class="hljs-comment">//m=audio说明本会话包含音频，9代表音频使用端口9来传输，但是在webrtc中一现在一般不使用，如果设置为0，代表不</span><br><span class="hljs-comment">//传输音频,UDP/TLS/RTP/SAVPF是表示用户来传输音频支持的协议，udp，tls,rtp代表使用udp来传输rtp包，并使用tls加密</span><br><span class="hljs-comment">//SAVPF代表使用srtcp的反馈机制来控制通信过程,后台111 103 104 9 0 8 106 105 13 126表示本会话音频支持的编码，后台几行会有详细补充说明</span><br><br>c=IN IP4 <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br><span class="hljs-comment">//这一行表示你要用来接收或者发送音频使用的IP地址，webrtc使用ice传输，不使用这个地址</span><br><br>a=<span class="hljs-attr">rtcp:</span><span class="hljs-number">9</span> IN IP4 <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br><span class="hljs-comment">//用来传输rtcp地地址和端口，webrtc中不使用</span><br><br>a=ice-<span class="hljs-attr">ufrag:</span>khLS<br>a=ice-<span class="hljs-attr">pwd:</span>cxLzteJaJBou3DspNaPsJhlQ<br><span class="hljs-comment">//以上两行是ice协商过程中的安全验证信息</span><br><br>a=<span class="hljs-attr">fingerprint:</span>sha<span class="hljs-number">-256</span> <span class="hljs-attr">FA:</span><span class="hljs-number">14</span>:<span class="hljs-number">42</span>:<span class="hljs-number">3</span><span class="hljs-attr">B:</span><span class="hljs-attr">C7:</span><span class="hljs-number">97</span>:<span class="hljs-number">1</span><span class="hljs-attr">B:</span><span class="hljs-attr">E8:</span><span class="hljs-attr">AE:</span><span class="hljs-number">0</span><span class="hljs-attr">C2:</span><span class="hljs-number">71</span>:<span class="hljs-number">03</span>:<span class="hljs-number">05</span>:<span class="hljs-number">05</span>:<span class="hljs-number">16</span>:<span class="hljs-number">8</span><span class="hljs-attr">F:</span><span class="hljs-attr">B9:</span><span class="hljs-attr">C7:</span><span class="hljs-number">98</span>:<span class="hljs-attr">E9:</span><span class="hljs-number">60</span>:<span class="hljs-number">43</span>:<span class="hljs-number">4</span><span class="hljs-attr">B:</span><span class="hljs-number">5</span><span class="hljs-attr">B:</span><span class="hljs-number">2</span><span class="hljs-attr">C:</span><span class="hljs-number">28</span>:<span class="hljs-attr">EE:</span><span class="hljs-number">5</span><span class="hljs-attr">C:</span><span class="hljs-number">8</span><span class="hljs-attr">F3:</span><span class="hljs-number">17</span><br><span class="hljs-comment">//以上这行是dtls协商过程中需要的认证信息</span><br><br>a=<span class="hljs-attr">setup:</span>actpass<br><span class="hljs-comment">//以上这行代表本客户端在dtls协商过程中，可以做客户端也可以做服务端，参考rfc4145 rfc4572</span><br><br>a=<span class="hljs-attr">mid:</span>audio<br><span class="hljs-comment">//在前面BUNDLE这一行中用到的媒体标识</span><br><br>a=<span class="hljs-attr">extmap:</span><span class="hljs-number">1</span> <span class="hljs-attr">urn:</span><span class="hljs-attr">ietf:</span><span class="hljs-attr">params:</span>rtp-<span class="hljs-attr">hdrext:</span>ssrc-audio-level<br><span class="hljs-comment">//上一行指出我要在rtp头部中加入音量信息，参考 rfc6464</span><br><br>a=sendrecv<br><span class="hljs-comment">//上一行指出我是双向通信，另外几种类型是recvonly,sendonly,inactive</span><br><br>a=rtcp-mux<br><span class="hljs-comment">//上一行指出rtp,rtcp包使用同一个端口来传输</span><br><br><span class="hljs-comment">//下面几行都是对m=audio这一行的媒体编码补充说明，指出了编码采用的编号，采样率，声道等</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">111</span> opus<span class="hljs-regexp">/48000/</span><span class="hljs-number">2</span><br><span class="hljs-comment">//可选 a=rtpmap:&lt;fmt/payload type&gt;&lt;encoding name&gt;/&lt;clock rate&gt;[/&lt;encodingparameters&gt;]</span><br><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">111</span> transport-cc<br><span class="hljs-comment">//以上这行说明opus编码支持使用rtcp来控制拥塞，参考https://tools.ietf.org/html/draft-holmer-rmcat-transport-wide-cc-extensions-01</span><br><br>a=<span class="hljs-attr">fmtp:</span><span class="hljs-number">111</span> minptime=<span class="hljs-number">10</span>;useinbandfec=<span class="hljs-number">1</span><br><span class="hljs-comment">//可选 a=fmtp:&lt;fmt/payload type&gt; parameters  对rtpmap进一步说明</span><br><span class="hljs-comment">//对opus编码可选的补充说明,minptime代表最小打包时长是10ms，useinbandfec=1代表使用opus编码内置fec特性</span><br><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">103</span> ISAC/<span class="hljs-number">16000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">104</span> ISAC/<span class="hljs-number">32000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">9</span> G722/<span class="hljs-number">8000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">0</span> PCMU/<span class="hljs-number">8000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">8</span> PCMA/<span class="hljs-number">8000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">106</span> CN/<span class="hljs-number">32000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">105</span> CN/<span class="hljs-number">16000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">13</span> CN/<span class="hljs-number">8000</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">126</span> telephone-event/<span class="hljs-number">8000</span><br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">18509423</span> <span class="hljs-attr">cname:</span>sTjtznXLCNH7nbRw<br><span class="hljs-comment">//cname用来标识一个数据源，ssrc当发生冲突时可能会发生变化，但是cname不会发生变化，也会出现在rtcp包中SDEC中，</span><br><span class="hljs-comment">//用于音视频同步</span><br><br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">18509423</span> <span class="hljs-attr">msid:</span>h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C <span class="hljs-number">15598</span>a91-caf9<span class="hljs-number">-4</span>fff-a28f<span class="hljs-number">-3082310</span>b2b7a<br><span class="hljs-comment">//以上这一行定义了ssrc和WebRTC中的MediaStream,AudioTrack之间的关系，msid后面第一个属性是stream-d,第二个是track-id</span><br><br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">18509423</span> <span class="hljs-attr">mslabel:</span>h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">18509423</span> <span class="hljs-attr">label:</span><span class="hljs-number">15598</span>a91-caf9<span class="hljs-number">-4</span>fff-a28f<span class="hljs-number">-3082310</span>b2b7a<br><br>       【video部分】<br>       <br>m=video <span class="hljs-number">9</span> UDP<span class="hljs-regexp">/TLS/</span>RTP/SAVPF <span class="hljs-number">100</span> <span class="hljs-number">101</span> <span class="hljs-number">107</span> <span class="hljs-number">116</span> <span class="hljs-number">117</span> <span class="hljs-number">96</span> <span class="hljs-number">97</span> <span class="hljs-number">99</span> <span class="hljs-number">98</span><br><span class="hljs-comment">//参考上面m=audio,含义类似</span><br><br>c=IN IP4 <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br>a=<span class="hljs-attr">rtcp:</span><span class="hljs-number">9</span> IN IP4 <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br>a=ice-<span class="hljs-attr">ufrag:</span>khLS<br>a=ice-<span class="hljs-attr">pwd:</span>cxLzteJaJBou3DspNaPsJhlQ<br>a=<span class="hljs-attr">fingerprint:</span>sha<span class="hljs-number">-256</span> <span class="hljs-attr">FA:</span><span class="hljs-number">14</span>:<span class="hljs-number">42</span>:<span class="hljs-number">3</span><span class="hljs-attr">B:</span><span class="hljs-attr">C7:</span><span class="hljs-number">97</span>:<span class="hljs-number">1</span><span class="hljs-attr">B:</span><span class="hljs-attr">E8:</span><span class="hljs-attr">AE:</span><span class="hljs-number">0</span><span class="hljs-attr">C2:</span><span class="hljs-number">71</span>:<span class="hljs-number">03</span>:<span class="hljs-number">05</span>:<span class="hljs-number">05</span>:<span class="hljs-number">16</span>:<span class="hljs-number">8</span><span class="hljs-attr">F:</span><span class="hljs-attr">B9:</span><span class="hljs-attr">C7:</span><span class="hljs-number">98</span>:<span class="hljs-attr">E9:</span><span class="hljs-number">60</span>:<span class="hljs-number">43</span>:<span class="hljs-number">4</span><span class="hljs-attr">B:</span><span class="hljs-number">5</span><span class="hljs-attr">B:</span><span class="hljs-number">2</span><span class="hljs-attr">C:</span><span class="hljs-number">28</span>:<span class="hljs-attr">EE:</span><span class="hljs-number">5</span><span class="hljs-attr">C:</span><span class="hljs-number">8</span><span class="hljs-attr">F3:</span><span class="hljs-number">17</span><br>a=<span class="hljs-attr">setup:</span>actpass<br>a=<span class="hljs-attr">mid:</span>video<br>a=<span class="hljs-attr">extmap:</span><span class="hljs-number">2</span> <span class="hljs-attr">urn:</span><span class="hljs-attr">ietf:</span><span class="hljs-attr">params:</span>rtp-<span class="hljs-attr">hdrext:</span>toffset<br>a=<span class="hljs-attr">extmap:</span><span class="hljs-number">3</span> <span class="hljs-attr">http:</span><span class="hljs-comment">//www.webrtc.org/experiments/rtp-hdrext/abs-send-time</span><br>a=<span class="hljs-attr">extmap:</span><span class="hljs-number">4</span> <span class="hljs-attr">urn:</span><span class="hljs-number">3</span><span class="hljs-attr">gpp:</span>video-orientation<br>a=<span class="hljs-attr">extmap:</span><span class="hljs-number">5</span> <span class="hljs-attr">http:</span><span class="hljs-comment">//www.ietf.org/id/draft-hol ... de-cc-extensions-01</span><br>a=<span class="hljs-attr">extmap:</span><span class="hljs-number">6</span> <span class="hljs-attr">http:</span><span class="hljs-comment">//www.webrtc.org/experiments/rtp-hdrext/playout-delay</span><br>a=sendrecv<br>a=rtcp-mux<br>a=rtcp-rsize<br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">100</span> VP8/<span class="hljs-number">90000</span><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">100</span> ccm fir<br><span class="hljs-comment">//ccm是codec control using RTCP feedback message简称，意思是支持使用rtcp反馈机制来实现编码控制，fir是Full Intra Request</span><br><span class="hljs-comment">//简称，意思是接收方通知发送方发送幅完全帧过来</span><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">100</span> nack<br><span class="hljs-comment">//支持丢包重传，参考rfc4585</span><br><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">100</span> nack pli<br><span class="hljs-comment">//支持关键帧丢包重传,参考rfc4585</span><br><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">100</span> goog-remb<br><span class="hljs-comment">//支持使用rtcp包来控制发送方的码流</span><br><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">100</span> transport-cc<br><span class="hljs-comment">//参考上面opus</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">101</span> VP9/<span class="hljs-number">90000</span><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">101</span> ccm fir<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">101</span> nack<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">101</span> nack pli<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">101</span> goog-remb<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">101</span> transport-cc<br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">107</span> H264/<span class="hljs-number">90000</span><br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">107</span> ccm fir<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">107</span> nack<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">107</span> nack pli<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">107</span> goog-remb<br>a=rtcp-<span class="hljs-attr">fb:</span><span class="hljs-number">107</span> transport-cc<br>a=<span class="hljs-attr">fmtp:</span><span class="hljs-number">107</span> level-asymmetry-allowed=<span class="hljs-number">1</span>;packetization-mode=<span class="hljs-number">1</span>;profile-level-id=<span class="hljs-number">42e01</span>f<br><br><span class="hljs-comment">//h264编码可选的附加说明</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">116</span> red/<span class="hljs-number">90000</span><br><span class="hljs-comment">//fec冗余编码，一般如果sdp中有这一行的话，rtp头部负载类型就是116，否则就是各编码原生负责类型</span><br><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">117</span> ulpfec/<span class="hljs-number">90000</span><br><span class="hljs-comment">//支持ULP FEC，参考rfc5109</span><br><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">96</span> rtx/<span class="hljs-number">90000</span><br>a=<span class="hljs-attr">fmtp:</span><span class="hljs-number">96</span> apt=<span class="hljs-number">100</span><br><span class="hljs-comment">//以上两行是VP8编码的重传包rtp类型</span><br><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">97</span> rtx/<span class="hljs-number">90000</span><br>a=<span class="hljs-attr">fmtp:</span><span class="hljs-number">97</span> apt=<span class="hljs-number">101</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">99</span> rtx/<span class="hljs-number">90000</span><br>a=<span class="hljs-attr">fmtp:</span><span class="hljs-number">99</span> apt=<span class="hljs-number">107</span><br>a=<span class="hljs-attr">rtpmap:</span><span class="hljs-number">98</span> rtx/<span class="hljs-number">90000</span><br>a=<span class="hljs-attr">fmtp:</span><span class="hljs-number">98</span> apt=<span class="hljs-number">116</span><br>a=ssrc-<span class="hljs-attr">group:</span>FID <span class="hljs-number">3463951252</span> <span class="hljs-number">1461041037</span><br><span class="hljs-comment">//在webrtc中，重传包和正常包ssrc是不同的，上一行中前一个是正常rtp包的ssrc,后一个是重传包的ssrc</span><br><br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">3463951252</span> <span class="hljs-attr">cname:</span>sTjtznXLCNH7nbRw<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">3463951252</span> <span class="hljs-attr">msid:</span>h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C ead4b4e9-b650<span class="hljs-number">-4</span>ed5<span class="hljs-number">-86</span>f8<span class="hljs-number">-6</span>f5f5806346d<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">3463951252</span> <span class="hljs-attr">mslabel:</span>h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">3463951252</span> <span class="hljs-attr">label:</span>ead4b4e9-b650<span class="hljs-number">-4</span>ed5<span class="hljs-number">-86</span>f8<span class="hljs-number">-6</span>f5f5806346d<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">1461041037</span> <span class="hljs-attr">cname:</span>sTjtznXLCNH7nbRw<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">1461041037</span> <span class="hljs-attr">msid:</span>h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C ead4b4e9-b650<span class="hljs-number">-4</span>ed5<span class="hljs-number">-86</span>f8<span class="hljs-number">-6</span>f5f5806346d<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">1461041037</span> <span class="hljs-attr">mslabel:</span>h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C<br>a=<span class="hljs-attr">ssrc:</span><span class="hljs-number">1461041037</span> <span class="hljs-attr">label:</span>ead4b4e9-b650<span class="hljs-number">-4</span>ed5<span class="hljs-number">-86</span>f8<span class="hljs-number">-6</span>f5f5806346d<br>m=application <span class="hljs-number">9</span> DTLS/SCTP <span class="hljs-number">5000</span><br>c=IN IP4 <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br>a=ice-<span class="hljs-attr">ufrag:</span>khLS<br>a=ice-<span class="hljs-attr">pwd:</span>cxLzteJaJBou3DspNaPsJhlQ<br>a=<span class="hljs-attr">fingerprint:</span>sha<span class="hljs-number">-256</span> <span class="hljs-attr">FA:</span><span class="hljs-number">14</span>:<span class="hljs-number">42</span>:<span class="hljs-number">3</span><span class="hljs-attr">B:</span><span class="hljs-attr">C7:</span><span class="hljs-number">97</span>:<span class="hljs-number">1</span><span class="hljs-attr">B:</span><span class="hljs-attr">E8:</span><span class="hljs-attr">AE:</span><span class="hljs-number">0</span><span class="hljs-attr">C2:</span><span class="hljs-number">71</span>:<span class="hljs-number">03</span>:<span class="hljs-number">05</span>:<span class="hljs-number">05</span>:<span class="hljs-number">16</span>:<span class="hljs-number">8</span><span class="hljs-attr">F:</span><span class="hljs-attr">B9:</span><span class="hljs-attr">C7:</span><span class="hljs-number">98</span>:<span class="hljs-attr">E9:</span><span class="hljs-number">60</span>:<span class="hljs-number">43</span>:<span class="hljs-number">4</span><span class="hljs-attr">B:</span><span class="hljs-number">5</span><span class="hljs-attr">B:</span><span class="hljs-number">2</span><span class="hljs-attr">C:</span><span class="hljs-number">28</span>:<span class="hljs-attr">EE:</span><span class="hljs-number">5</span><span class="hljs-attr">C:</span><span class="hljs-number">8</span><span class="hljs-attr">F3:</span><span class="hljs-number">17</span><br>a=<span class="hljs-attr">setup:</span>actpass<br>a=<span class="hljs-attr">mid:</span>data<br>a=<span class="hljs-attr">sctpmap:</span><span class="hljs-number">5000</span> webrtc-datachannel <span class="hljs-number">1024</span><br></code></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaomucgwlmx/article/details/103225720">WebRTC核心之SDP详解、媒体协商</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/94d6defc8e27">WebRTC – SDP格式解析</a></p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000020794391">WebRTC会话描述协议（SDP）详解</a></p>
+<html>
+    <table style="margin-left:auto; margin-right: auto;">
+        <tr>
+            <td>
+             <img src="https://i.loli.net/2021/02/03/SXE7MICDbUh9Q3J.jpg" srcset="/img/loading.gif" width = "110" height = "110"/>
+            </td>
+            <td>
+<span>本文作者</span>：<strong><span style="font-size: 14px;"><a href="https://github.com/zhuyongchn" target="_blank">zhuyong</a></span></strong> <br>
+<span>原文链接</span>：<strong><span style="font-size: 14px;"><a href="https://zhuyongchn.github.io" target="_blank">https://zhuyongchn.github.io</a></span></strong> <br>
+<span class="essaySuffix-right-title">关于博主</span>：欢迎关注左侧公众号，获取更多干货。<br>
+<span class="essaySuffix-right-title">版权声明</span>：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" alt="BY-NC-SA" title="BY-NC-SA" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！<br>
+            </td>
+        </tr>
+    </table>
+</html>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/posts/0/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/posts/33d6884e/">
+                        <span class="hidden-mobile">valgrind和Kcachegrind性能分析工具详解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.waitElementVisible('comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'zhuyongchn/zhuyongchn.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+
+</body>
+</html>
