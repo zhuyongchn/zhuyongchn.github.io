@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>sdp(会话传输协议)详解 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="1、什么是sdpSDP(Session Description Protocol)描述会话协议，它只是一种信息格式的描述标准，本身不属于传输协议，但是可以被其他传输协议用来交换必要的信息，用于两个会话实体之间的媒体协商。 2、sdp协议结构SDP的文本信息包括： 会话信息   网络信息   媒体信息   安全信息   服务质量和分组信息  12345678910111213141516171819">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sdp(会话传输协议)详解">
+<meta property="og:url" content="http://example.com/2021/02/08/webrtc%20sdp(%E4%BC%9A%E8%AF%9D%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE)%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1、什么是sdpSDP(Session Description Protocol)描述会话协议，它只是一种信息格式的描述标准，本身不属于传输协议，但是可以被其他传输协议用来交换必要的信息，用于两个会话实体之间的媒体协商。 2、sdp协议结构SDP的文本信息包括： 会话信息   网络信息   媒体信息   安全信息   服务质量和分组信息  12345678910111213141516171819">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/03/SXE7MICDbUh9Q3J.jpg">
+<meta property="article:published_time" content="2021-02-08T12:09:59.000Z">
+<meta property="article:modified_time" content="2021-02-09T11:38:11.787Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/03/SXE7MICDbUh9Q3J.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-webrtc sdp(会话传输协议)详解" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/08/webrtc%20sdp(%E4%BC%9A%E8%AF%9D%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE)%E8%AF%A6%E8%A7%A3/" class="article-date">
+  <time class="dt-published" datetime="2021-02-08T12:09:59.000Z" itemprop="datePublished">2021-02-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      sdp(会话传输协议)详解
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="1、什么是sdp"><a href="#1、什么是sdp" class="headerlink" title="1、什么是sdp"></a>1、什么是sdp</h4><p>SDP(Session Description Protocol)描述会话协议，它只是一种信息格式的描述标准，本身不属于传输协议，但是可以被其他传输协议用来交换必要的信息，用于两个会话实体之间的媒体协商。</p>
+<h4 id="2、sdp协议结构"><a href="#2、sdp协议结构" class="headerlink" title="2、sdp协议结构"></a>2、sdp协议结构</h4><h5 id="SDP的文本信息包括："><a href="#SDP的文本信息包括：" class="headerlink" title="SDP的文本信息包括："></a>SDP的文本信息包括：</h5><ul>
+<li>会话信息  </li>
+<li>网络信息  </li>
+<li>媒体信息  </li>
+<li>安全信息  </li>
+<li>服务质量和分组信息</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">                                                +---------------------+</span><br><span class="line">                                                |        v=           |</span><br><span class="line">                                                +---------------------+</span><br><span class="line">                +---------------------+         +---------------------+</span><br><span class="line">        ====    |   Session Metadata  |  =====  |        o=           |</span><br><span class="line">        |       +---------------------+         +----------------------</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |        t=           |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |</span><br><span class="line">        |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |        c=           |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |       +---------------------+</span><br><span class="line">        ====    | Network Description |   =====</span><br><span class="line">        |       +---------------------+</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |    a=candidate      |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |</span><br><span class="line">        |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |        m=           |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |        +---------------------+        +---------------------+</span><br><span class="line">        ====     | Stream Description  |  ===== |      a=rtpmap       |</span><br><span class="line">        |        +---------------------+        +----------------------</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |      a=fmtp         |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |      a=sendrecv..   |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">+---------------+</span><br><span class="line">|    SEMANTIC   |</span><br><span class="line">| COMPONENTS OF |</span><br><span class="line">|     SDP       |</span><br><span class="line">+---------------+</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |      a=crypto       |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |         +---------------------+       +---------------------+</span><br><span class="line">        ====      |Security Descriptions|  =====|      a=ice-frag     |</span><br><span class="line">        |         +---------------------+       +----------------------</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |      a=ice-pwd      |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |     a=fingerprint   |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |</span><br><span class="line">        |</span><br><span class="line">        |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |                                       |      a=rtcp-fb      |</span><br><span class="line">        |                                       +---------------------+</span><br><span class="line">        |         +---------------------+       +---------------------+</span><br><span class="line">        ====      |   Qos,Grouping      |       |                     |</span><br><span class="line">                  |   Descriptions      |  =====|       a=group       |</span><br><span class="line">                  +---------------------+       +----------------------</span><br><span class="line">                                                +---------------------+</span><br><span class="line">                                                |       a=rtcpmux     |</span><br><span class="line">                                                +---------------------+</span><br></pre></td></tr></table></figure>
+
+<h5 id="sdp格式"><a href="#sdp格式" class="headerlink" title="sdp格式"></a>sdp格式</h5><p>SDP描述由许多文本行组成，文本行的格式为&lt;类型&gt;&#x3D;&lt;值&gt;，&lt;类型&gt;是一个字母，&lt;值&gt;是结构化的文本串，其格式依&lt;类型&gt;而定，每个SDP有一个会话级描述、多个媒体级描述。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;type&gt;=&lt;value&gt;</span><br><span class="line"></span><br><span class="line">&lt;type&gt;: 区分大小写，代表特定的属性，例如v代表SDP版本。</span><br><span class="line">&lt;value&gt;：UTF8编码的文本，具体格式与类型有关。</span><br><span class="line">=两边不允许存在空格。</span><br><span class="line">=*表示该项是可选的。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>会话的名称和目的 Session Description</p>
+<blockquote>
+<p>v &#x3D; （协议版本）<br>o &#x3D; （所有者&#x2F;创建者和会话标识符）<br>s &#x3D; （会话名称）<br>i &#x3D; * （会话信息）<br>u &#x3D; * （URI 描述）<br>e &#x3D; * （Email 地址）<br>p &#x3D; * （电话号码）<br>c &#x3D; * （连接信息 ― 如果包含在所有媒体中，则不需要该字段）<br>b &#x3D; * （带宽信息）  </p>
+</blockquote>
+<p>会话存活时间   Time Description</p>
+<blockquote>
+<p>t &#x3D; （会话活动时间）<br>r &#x3D; * （0或多次重复次数）  </p>
+</blockquote>
+<p>构成会话的媒体(会话中包括多个媒体)<br>SDP的媒体信息  Media Description<br>媒体格式<br>传输协议<br>传输IP和端口<br>媒体负载类型(VP8、VP9、H264、H265)  </p>
+<blockquote>
+<p>m &#x3D; （媒体名称和传输地址）<br>i &#x3D; * （媒体标题）<br>c &#x3D; * （连接信息 — 如果包含在会话层则该字段可选）<br>b &#x3D; * （带宽信息）<br>k &#x3D; * （加密密钥）<br>a &#x3D; * （0 个或多个会话属性行）  </p>
+</blockquote>
+<h4 id="3、sdp实例"><a href="#3、sdp实例" class="headerlink" title="3、sdp实例"></a>3、sdp实例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br></pre></td><td class="code"><pre><span class="line">                      【Session Metadata部分】</span><br><span class="line">v=0</span><br><span class="line">//sdp版本号，一直为0,rfc4566规定</span><br><span class="line"></span><br><span class="line">o=- 7017624586836067756 2 IN IP4 127.0.0.1</span><br><span class="line">//origion/owner  o=&lt;username&gt; &lt;session id&gt; &lt;version&gt; &lt;network type&gt; &lt;address type&gt; &lt;unicast-address&gt;</span><br><span class="line">//username如何没有使用-代替，7017624586836067756是整个会话的编号，2代表会话版本，如果在会话</span><br><span class="line">//过程中有改变编码之类的操作，重新生成sdp时,sess-id不变，sess-version加1</span><br><span class="line"></span><br><span class="line">s=-</span><br><span class="line">//会话名,必选，没有的话使用-代替</span><br><span class="line"></span><br><span class="line">t=0 0</span><br><span class="line">//两个值分别是会话的起始时间和结束时间，这里都是0代表没有限制</span><br><span class="line"></span><br><span class="line">a=group:BUNDLE audio video data</span><br><span class="line">//需要共用一个传输通道传输的媒体，如果没有这一行，音视频，数据就会分别单独用一个udp端口来发送</span><br><span class="line"></span><br><span class="line">a=msid-semantic: WMS h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C</span><br><span class="line">//WMS是WebRTC Media Stream简称，这一行定义了本客户端支持同时传输多个流，一个流可以包括多个track,</span><br><span class="line">//一般定义了这个，后面a=ssrc这一行就会有msid,mslabel等属性</span><br><span class="line"></span><br><span class="line">                          【Stream Description部分】</span><br><span class="line">        </span><br><span class="line">        【audio部分】</span><br><span class="line">        </span><br><span class="line">m=audio 9 UDP/TLS/RTP/SAVPF 111 103 104 9 0 8 106 105 13 126</span><br><span class="line">//m = &lt;media&gt;&lt;port&gt;&lt;transport&gt;&lt;fmt/payload type list&gt;</span><br><span class="line">//m=audio说明本会话包含音频，9代表音频使用端口9来传输，但是在webrtc中一现在一般不使用，如果设置为0，代表不</span><br><span class="line">//传输音频,UDP/TLS/RTP/SAVPF是表示用户来传输音频支持的协议，udp，tls,rtp代表使用udp来传输rtp包，并使用tls加密</span><br><span class="line">//SAVPF代表使用srtcp的反馈机制来控制通信过程,后台111 103 104 9 0 8 106 105 13 126表示本会话音频支持的编码，后台几行会有详细补充说明</span><br><span class="line"></span><br><span class="line">c=IN IP4 0.0.0.0</span><br><span class="line">//这一行表示你要用来接收或者发送音频使用的IP地址，webrtc使用ice传输，不使用这个地址</span><br><span class="line"></span><br><span class="line">a=rtcp:9 IN IP4 0.0.0.0</span><br><span class="line">//用来传输rtcp地地址和端口，webrtc中不使用</span><br><span class="line"></span><br><span class="line">a=ice-ufrag:khLS</span><br><span class="line">a=ice-pwd:cxLzteJaJBou3DspNaPsJhlQ</span><br><span class="line">//以上两行是ice协商过程中的安全验证信息</span><br><span class="line"></span><br><span class="line">a=fingerprint:sha-256 FA:14:42:3B:C7:97:1B:E8:AE:0C2:71:03:05:05:16:8F:B9:C7:98:E9:60:43:4B:5B:2C:28:EE:5C:8F3:17</span><br><span class="line">//以上这行是dtls协商过程中需要的认证信息</span><br><span class="line"></span><br><span class="line">a=setup:actpass</span><br><span class="line">//以上这行代表本客户端在dtls协商过程中，可以做客户端也可以做服务端，参考rfc4145 rfc4572</span><br><span class="line"></span><br><span class="line">a=mid:audio</span><br><span class="line">//在前面BUNDLE这一行中用到的媒体标识</span><br><span class="line"></span><br><span class="line">a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level</span><br><span class="line">//上一行指出我要在rtp头部中加入音量信息，参考 rfc6464</span><br><span class="line"></span><br><span class="line">a=sendrecv</span><br><span class="line">//上一行指出我是双向通信，另外几种类型是recvonly,sendonly,inactive</span><br><span class="line"></span><br><span class="line">a=rtcp-mux</span><br><span class="line">//上一行指出rtp,rtcp包使用同一个端口来传输</span><br><span class="line"></span><br><span class="line">//下面几行都是对m=audio这一行的媒体编码补充说明，指出了编码采用的编号，采样率，声道等</span><br><span class="line">a=rtpmap:111 opus/48000/2</span><br><span class="line">//可选 a=rtpmap:&lt;fmt/payload type&gt;&lt;encoding name&gt;/&lt;clock rate&gt;[/&lt;encodingparameters&gt;]</span><br><span class="line"></span><br><span class="line">a=rtcp-fb:111 transport-cc</span><br><span class="line">//以上这行说明opus编码支持使用rtcp来控制拥塞，参考https://tools.ietf.org/html/draft-holmer-rmcat-transport-wide-cc-extensions-01</span><br><span class="line"></span><br><span class="line">a=fmtp:111 minptime=10;useinbandfec=1</span><br><span class="line">//可选 a=fmtp:&lt;fmt/payload type&gt; parameters  对rtpmap进一步说明</span><br><span class="line">//对opus编码可选的补充说明,minptime代表最小打包时长是10ms，useinbandfec=1代表使用opus编码内置fec特性</span><br><span class="line"></span><br><span class="line">a=rtpmap:103 ISAC/16000</span><br><span class="line">a=rtpmap:104 ISAC/32000</span><br><span class="line">a=rtpmap:9 G722/8000</span><br><span class="line">a=rtpmap:0 PCMU/8000</span><br><span class="line">a=rtpmap:8 PCMA/8000</span><br><span class="line">a=rtpmap:106 CN/32000</span><br><span class="line">a=rtpmap:105 CN/16000</span><br><span class="line">a=rtpmap:13 CN/8000</span><br><span class="line">a=rtpmap:126 telephone-event/8000</span><br><span class="line">a=ssrc:18509423 cname:sTjtznXLCNH7nbRw</span><br><span class="line">//cname用来标识一个数据源，ssrc当发生冲突时可能会发生变化，但是cname不会发生变化，也会出现在rtcp包中SDEC中，</span><br><span class="line">//用于音视频同步</span><br><span class="line"></span><br><span class="line">a=ssrc:18509423 msid:h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C 15598a91-caf9-4fff-a28f-3082310b2b7a</span><br><span class="line">//以上这一行定义了ssrc和WebRTC中的MediaStream,AudioTrack之间的关系，msid后面第一个属性是stream-d,第二个是track-id</span><br><span class="line"></span><br><span class="line">a=ssrc:18509423 mslabel:h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C</span><br><span class="line">a=ssrc:18509423 label:15598a91-caf9-4fff-a28f-3082310b2b7a</span><br><span class="line"></span><br><span class="line">       【video部分】</span><br><span class="line">       </span><br><span class="line">m=video 9 UDP/TLS/RTP/SAVPF 100 101 107 116 117 96 97 99 98</span><br><span class="line">//参考上面m=audio,含义类似</span><br><span class="line"></span><br><span class="line">c=IN IP4 0.0.0.0</span><br><span class="line">a=rtcp:9 IN IP4 0.0.0.0</span><br><span class="line">a=ice-ufrag:khLS</span><br><span class="line">a=ice-pwd:cxLzteJaJBou3DspNaPsJhlQ</span><br><span class="line">a=fingerprint:sha-256 FA:14:42:3B:C7:97:1B:E8:AE:0C2:71:03:05:05:16:8F:B9:C7:98:E9:60:43:4B:5B:2C:28:EE:5C:8F3:17</span><br><span class="line">a=setup:actpass</span><br><span class="line">a=mid:video</span><br><span class="line">a=extmap:2 urn:ietf:params:rtp-hdrext:toffset</span><br><span class="line">a=extmap:3 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time</span><br><span class="line">a=extmap:4 urn:3gpp:video-orientation</span><br><span class="line">a=extmap:5 http://www.ietf.org/id/draft-hol ... de-cc-extensions-01</span><br><span class="line">a=extmap:6 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay</span><br><span class="line">a=sendrecv</span><br><span class="line">a=rtcp-mux</span><br><span class="line">a=rtcp-rsize</span><br><span class="line">a=rtpmap:100 VP8/90000</span><br><span class="line">a=rtcp-fb:100 ccm fir</span><br><span class="line">//ccm是codec control using RTCP feedback message简称，意思是支持使用rtcp反馈机制来实现编码控制，fir是Full Intra Request</span><br><span class="line">//简称，意思是接收方通知发送方发送幅完全帧过来</span><br><span class="line">a=rtcp-fb:100 nack</span><br><span class="line">//支持丢包重传，参考rfc4585</span><br><span class="line"></span><br><span class="line">a=rtcp-fb:100 nack pli</span><br><span class="line">//支持关键帧丢包重传,参考rfc4585</span><br><span class="line"></span><br><span class="line">a=rtcp-fb:100 goog-remb</span><br><span class="line">//支持使用rtcp包来控制发送方的码流</span><br><span class="line"></span><br><span class="line">a=rtcp-fb:100 transport-cc</span><br><span class="line">//参考上面opus</span><br><span class="line">a=rtpmap:101 VP9/90000</span><br><span class="line">a=rtcp-fb:101 ccm fir</span><br><span class="line">a=rtcp-fb:101 nack</span><br><span class="line">a=rtcp-fb:101 nack pli</span><br><span class="line">a=rtcp-fb:101 goog-remb</span><br><span class="line">a=rtcp-fb:101 transport-cc</span><br><span class="line">a=rtpmap:107 H264/90000</span><br><span class="line">a=rtcp-fb:107 ccm fir</span><br><span class="line">a=rtcp-fb:107 nack</span><br><span class="line">a=rtcp-fb:107 nack pli</span><br><span class="line">a=rtcp-fb:107 goog-remb</span><br><span class="line">a=rtcp-fb:107 transport-cc</span><br><span class="line">a=fmtp:107 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f</span><br><span class="line"></span><br><span class="line">//h264编码可选的附加说明</span><br><span class="line">a=rtpmap:116 red/90000</span><br><span class="line">//fec冗余编码，一般如果sdp中有这一行的话，rtp头部负载类型就是116，否则就是各编码原生负责类型</span><br><span class="line"></span><br><span class="line">a=rtpmap:117 ulpfec/90000</span><br><span class="line">//支持ULP FEC，参考rfc5109</span><br><span class="line"></span><br><span class="line">a=rtpmap:96 rtx/90000</span><br><span class="line">a=fmtp:96 apt=100</span><br><span class="line">//以上两行是VP8编码的重传包rtp类型</span><br><span class="line"></span><br><span class="line">a=rtpmap:97 rtx/90000</span><br><span class="line">a=fmtp:97 apt=101</span><br><span class="line">a=rtpmap:99 rtx/90000</span><br><span class="line">a=fmtp:99 apt=107</span><br><span class="line">a=rtpmap:98 rtx/90000</span><br><span class="line">a=fmtp:98 apt=116</span><br><span class="line">a=ssrc-group:FID 3463951252 1461041037</span><br><span class="line">//在webrtc中，重传包和正常包ssrc是不同的，上一行中前一个是正常rtp包的ssrc,后一个是重传包的ssrc</span><br><span class="line"></span><br><span class="line">a=ssrc:3463951252 cname:sTjtznXLCNH7nbRw</span><br><span class="line">a=ssrc:3463951252 msid:h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C ead4b4e9-b650-4ed5-86f8-6f5f5806346d</span><br><span class="line">a=ssrc:3463951252 mslabel:h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C</span><br><span class="line">a=ssrc:3463951252 label:ead4b4e9-b650-4ed5-86f8-6f5f5806346d</span><br><span class="line">a=ssrc:1461041037 cname:sTjtznXLCNH7nbRw</span><br><span class="line">a=ssrc:1461041037 msid:h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C ead4b4e9-b650-4ed5-86f8-6f5f5806346d</span><br><span class="line">a=ssrc:1461041037 mslabel:h1aZ20mbQB0GSsq0YxLfJmiYWE9CBfGch97C</span><br><span class="line">a=ssrc:1461041037 label:ead4b4e9-b650-4ed5-86f8-6f5f5806346d</span><br><span class="line">m=application 9 DTLS/SCTP 5000</span><br><span class="line">c=IN IP4 0.0.0.0</span><br><span class="line">a=ice-ufrag:khLS</span><br><span class="line">a=ice-pwd:cxLzteJaJBou3DspNaPsJhlQ</span><br><span class="line">a=fingerprint:sha-256 FA:14:42:3B:C7:97:1B:E8:AE:0C2:71:03:05:05:16:8F:B9:C7:98:E9:60:43:4B:5B:2C:28:EE:5C:8F3:17</span><br><span class="line">a=setup:actpass</span><br><span class="line">a=mid:data</span><br><span class="line">a=sctpmap:5000 webrtc-datachannel 1024</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaomucgwlmx/article/details/103225720">WebRTC核心之SDP详解、媒体协商</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/94d6defc8e27">WebRTC – SDP格式解析</a></p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000020794391">WebRTC会话描述协议（SDP）详解</a></p>
+<html>
+    <table style="margin-left:auto; margin-right: auto;">
+        <tr>
+            <td>
+             <img src="https://i.loli.net/2021/02/03/SXE7MICDbUh9Q3J.jpg" width = "110" height = "110"/>
+            </td>
+            <td>
+<span>本文作者</span>：<strong><span style="font-size: 14px;"><a href="https://github.com/zhuyongchn" target="_blank">zhuyong</a></span></strong> <br>
+<span>原文链接</span>：<strong><span style="font-size: 14px;"><a href="https://zhuyongchn.github.io" target="_blank">https://zhuyongchn.github.io</a></span></strong> <br>
+<span class="essaySuffix-right-title">关于博主</span>：欢迎关注左侧公众号，获取更多干货。<br>
+<span class="essaySuffix-right-title">版权声明</span>：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" alt="BY-NC-SA" title="BY-NC-SA" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！<br>
+            </td>
+        </tr>
+    </table>
+</html>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/08/webrtc%20sdp(%E4%BC%9A%E8%AF%9D%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE)%E8%AF%A6%E8%A7%A3/" data-id="clgrezjww0002skvte3n1e8nv" data-title="sdp(会话传输协议)详解" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/03/16/GDB%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GDB调试命令详解
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/02/02/valgrind%E5%92%8CKcachegrind%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E8%AF%A6%E8%A7%A3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">valgrind和Kcachegrind性能分析工具详解</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/04/22/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2%E6%96%87%E7%AB%A0/">我的第一篇博客文章</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/22/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/16/GDB%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/">GDB调试命令详解</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/08/webrtc%20sdp(%E4%BC%9A%E8%AF%9D%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE)%E8%AF%A6%E8%A7%A3/">sdp(会话传输协议)详解</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/02/valgrind%E5%92%8CKcachegrind%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E8%AF%A6%E8%A7%A3/">valgrind和Kcachegrind性能分析工具详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

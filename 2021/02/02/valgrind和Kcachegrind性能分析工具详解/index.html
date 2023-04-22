@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>valgrind和Kcachegrind性能分析工具详解 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="一、valgrind介绍valgrind是运行在Linux上的一套基于仿真技术的程序调试和分析工具，用于构建动态分析工具的装备性框架。它包括一个工具集，每个工具执行某种类型的调试、分析或类似的任务，以帮助完善你的程序。Valgrind的架构是模块化的，所以可以容易的创建新的工具而又不会扰乱现有的结构。 valgrind主要包含以下工具：   123456789101、memcheck：检查程序中的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="valgrind和Kcachegrind性能分析工具详解">
+<meta property="og:url" content="http://example.com/2021/02/02/valgrind%E5%92%8CKcachegrind%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="一、valgrind介绍valgrind是运行在Linux上的一套基于仿真技术的程序调试和分析工具，用于构建动态分析工具的装备性框架。它包括一个工具集，每个工具执行某种类型的调试、分析或类似的任务，以帮助完善你的程序。Valgrind的架构是模块化的，所以可以容易的创建新的工具而又不会扰乱现有的结构。 valgrind主要包含以下工具：   123456789101、memcheck：检查程序中的">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/03/tRIXdOg39sapN16.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/03/SXE7MICDbUh9Q3J.jpg">
+<meta property="article:published_time" content="2021-02-02T10:57:15.000Z">
+<meta property="article:modified_time" content="2021-02-09T11:38:11.790Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/03/tRIXdOg39sapN16.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-valgrind和Kcachegrind性能分析工具详解" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/02/02/valgrind%E5%92%8CKcachegrind%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E8%AF%A6%E8%A7%A3/" class="article-date">
+  <time class="dt-published" datetime="2021-02-02T10:57:15.000Z" itemprop="datePublished">2021-02-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      valgrind和Kcachegrind性能分析工具详解
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h4 id="一、valgrind介绍"><a href="#一、valgrind介绍" class="headerlink" title="一、valgrind介绍"></a>一、valgrind介绍</h4><p><code>valgrind</code>是运行在<code>Linux</code>上的一套基于仿真技术的程序调试和分析工具，用于构建动态分析工具的装备性框架。它包括一个工具集，每个工具执行某种类型的调试、分析或类似的任务，以帮助完善你的程序。<code>Valgrind</code>的架构是模块化的，所以可以容易的创建新的工具而又不会扰乱现有的结构。</p>
+<p><code>valgrind</code>主要包含以下工具：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">1、memcheck：检查程序中的内存问题，如泄漏、越界、非法指针等。</span><br><span class="line"></span><br><span class="line">2、callgrind：检测程序代码的运行时间和调用过程，以及分析程序性能。</span><br><span class="line"></span><br><span class="line">3、cachegrind：分析CPU的cache命中率、丢失率，用于进行代码优化。</span><br><span class="line"></span><br><span class="line">4、helgrind：用于检查多线程程序的竞态条件。</span><br><span class="line"></span><br><span class="line">5、massif：堆栈分析器，指示程序中使用了多少堆内存等信息。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>另外，也有一些大多数用户不会用到的小工具： <code>Lackey</code>是一个示例工具，用于演示一些装备的基础性内容；<code>Nulgrind</code>是一个最小化的<code>Valgrind</code>工具，不做分析或者操作，仅用于测试目的。</p>
+<h4 id="二、valgrind安装及使用"><a href="#二、valgrind安装及使用" class="headerlink" title="二、valgrind安装及使用"></a>二、valgrind安装及使用</h4><h5 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h5><p>建议从<a target="_blank" rel="noopener" href="https://note.youdao.com/">valgrind官网</a>下载安装，目前官网的最新包是<code>3.16.1</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir valgrind-inst</span><br><span class="line">$ cd valgrind-inst/</span><br><span class="line">$ wget https://sourceware.org/pub/valgrind/valgrind-3.16.1.tar.bz2</span><br><span class="line"></span><br><span class="line">$ ls</span><br><span class="line">valgrind-3.16.1.tar.bz2</span><br></pre></td></tr></table></figure>
+
+<p>解压后进行安装，可以指定安装目录，这样的话记得设置环境变量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ tar -xvf valgrind-3.16.1.tar.bz2</span><br><span class="line">$ cd valgrind-3.16.1</span><br><span class="line">$ ./configure --prefix=/usr/local/valgrind</span><br><span class="line">$ make</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+
+<p>查看是否安装成功</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ valgrind --version</span><br><span class="line">valgrind-3.16.1</span><br></pre></td></tr></table></figure>
+
+<h5 id="工具集的使用"><a href="#工具集的使用" class="headerlink" title="工具集的使用"></a>工具集的使用</h5><p>基本使用格式如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">usage: valgrind [options] prog-and-args</span><br></pre></td></tr></table></figure>
+
+<p>其支持众多选项，我们可以通过<code>valgrind --help</code>来进行查看。</p>
+<p>这里我们只介绍几个较为常用的选项</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">--tool: 是最常用的选项，用于选择使用valgrind工具集中的哪一个工具。默认值为memcheck。</span><br><span class="line"></span><br><span class="line">--version: 用于打印valgrind的版本号</span><br><span class="line"></span><br><span class="line">-q/--quiet: 安静的运行，只打印错误消息；</span><br><span class="line"></span><br><span class="line">-v/--verbose: 打印更详细的信息；</span><br><span class="line"></span><br><span class="line">--trace-children: 是否跟踪子进程，默认值为no;</span><br><span class="line"></span><br><span class="line">--track-fds: 是否追踪打开的文件描述符，默认为no</span><br><span class="line"></span><br><span class="line">--time-stamp=no|yes: 是否在打印出的每条消息之前加上时间戳信息。默认值为no</span><br><span class="line"></span><br><span class="line">--log-file=&lt;file&gt;: 指定将消息打印到某个文件</span><br><span class="line"></span><br><span class="line">--default-suppressions: 加载默认的抑制参数。</span><br><span class="line"></span><br><span class="line">--alignment: 指定malloc分配内存时的最小对齐字节数；</span><br><span class="line"></span><br><span class="line">如下的一些选项用于Memcheck工具：</span><br><span class="line"></span><br><span class="line">--leak-check=no|summary|full: 在退出时是否查找内存泄露。默认值为summary</span><br><span class="line"></span><br><span class="line">--show-leak-kinds=kind1,kind2,..: 显示哪一种类型的内存泄露。默认显示definite和possible这两种；</span><br></pre></td></tr></table></figure>
+
+<h4 id="三、-Valgrind-工具详解"><a href="#三、-Valgrind-工具详解" class="headerlink" title="三、 Valgrind 工具详解"></a>三、 Valgrind 工具详解</h4><h5 id="1）-memcheck"><a href="#1）-memcheck" class="headerlink" title="1） memcheck"></a>1） memcheck</h5><p>最常用的工具，用来检测程序中出现的内存问题，所有对内存的读写都会被检测到，一切对<code>malloc</code>、<code>free</code>、<code>new</code>、<code>delete</code>的调用都会被捕获。所以，它能检测以下问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">1、使用未初始化的内存。如果在定义一个变量时没有赋初始值，后边即使赋值了，使用这个变量的时候Memcheck也会报&quot;uninitialised value&quot;错误。使用中会发现，valgrind提示很多这个错误，由于关注的是内存泄漏问题，所以可以用--undef-value-errors=选项把这个错误提示屏蔽掉，具体可以看后面的选项解释。</span><br><span class="line"></span><br><span class="line">2、读/写释放后的内存块；</span><br><span class="line"></span><br><span class="line">3、内存读写越界（数组访问越界／访问已经释放的内存),读/写超出malloc分配的内存块；</span><br><span class="line"></span><br><span class="line">4、读/写不适当的栈中内存块；</span><br><span class="line"></span><br><span class="line">5、内存泄漏，指向一块内存的指针永远丢失；</span><br><span class="line"></span><br><span class="line">6、不正确的malloc/free或new/delete匹配（重复释放／使用不匹配的分配和释放函数）；</span><br><span class="line"></span><br><span class="line">7、内存覆盖，memcpy()相关函数中的dst和src指针重叠。</span><br><span class="line">   </span><br></pre></td></tr></table></figure>
+
+<p><strong>用法：</strong></p>
+<p>将程序编译生成可执行文件后执行：<code>valgrind –leak-check=full ./程序名</code></p>
+<p>注意：下面讨论的所有测试代码在编译时最好都加上<code>-g</code>选项（用来在<code>memcheck</code>的输出中生成行号）进行编译。</p>
+<p><strong>测试程序验证：</strong></p>
+<p>编写测试程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line"></span><br><span class="line">void func() &#123;</span><br><span class="line">    char *p = new char[10];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    func();</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>编译后，用<code>valgrind</code>检测程序。<br>如果设置了<code>--leak-check=full</code>，<code>Memcheck</code>会给出详细的每个块是在哪里分配，并且给出分配时函数调用堆栈（编译的时候使用<code>-g</code>选项和去掉<code>-o</code>优化选项，就可以得到更详细的函数信息，可以精确到代码的某一行）。可以通过<code>--show-leak-kinds</code>选项来选择要详细报告哪几种类型的错误。<code>Memcheck</code>会把函数调用堆栈相同或相似的内存块信息，放到同一个条目来显示，可以通过<code>--leak-resolution</code>来控制这个”相似”判断的力度。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ g++ -g -o test leak.cpp</span><br><span class="line">$ valgrind --tool=memcheck --leak-check=full ./test</span><br></pre></td></tr></table></figure>
+
+<p><strong>检测结果如下：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">==6018== Memcheck, a memory error detector</span><br><span class="line">==6018== Copyright (C) 2002-2017, and GNU GPL&#x27;d, by Julian Seward et al.</span><br><span class="line">==6018== Using Valgrind-3.16.1 and LibVEX; rerun with -h for copyright info</span><br><span class="line">==6018== Command: ./test</span><br><span class="line">==6018== </span><br><span class="line">==6018== </span><br><span class="line">==6018== HEAP SUMMARY:</span><br><span class="line">==6018==     in use at exit: 10 bytes in 1 blocks</span><br><span class="line">==6018==   total heap usage: 1 allocs, 0 frees, 10 bytes allocated</span><br><span class="line">==6018== </span><br><span class="line">==6018== 10 bytes in 1 blocks are definitely lost in loss record 1 of 1</span><br><span class="line">==6018==    at 0x4C2AC58: operator new[](unsigned long) (vg_replace_malloc.c:431)</span><br><span class="line">==6018==    by 0x40062E: func() (leak.cpp:4)</span><br><span class="line">==6018==    by 0x40063D: main (leak.cpp:8)</span><br><span class="line">==6018== </span><br><span class="line">==6018== LEAK SUMMARY:</span><br><span class="line">==6018==    definitely lost: 10 bytes in 1 blocks</span><br><span class="line">==6018==    indirectly lost: 0 bytes in 0 blocks</span><br><span class="line">==6018==      possibly lost: 0 bytes in 0 blocks</span><br><span class="line">==6018==    still reachable: 0 bytes in 0 blocks</span><br><span class="line">==6018==         suppressed: 0 bytes in 0 blocks</span><br><span class="line">==6018== </span><br><span class="line">==6018== For lists of detected and suppressed errors, rerun with: -s</span><br><span class="line">==6018== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果说明：</strong></p>
+<p>先看看输出信息中的<code>HEAP SUMMARY</code>，它表示程序在堆上分配内存的情况，其中的<code>1 allocs</code><br>表示程序分配了 <code>1</code> 次内存，<code>0 frees</code>表示程序释放了 <code>0</code> 次内存，<code>10 bytes allocated</code>表示分配了 <code>10</code> 个字节的内存。<br>另外，<code>Valgrind</code> 也会报告程序是在哪个位置发生内存泄漏。</p>
+<p>上面<code>LEAK SUMMARY</code>会打印5种不同的类型，这里我们简单介绍一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">definitely lost: 明确丢失的内存。程序中存在内存泄露，应尽快修复。当程序结束时如果一块动态分配的内存没有被释放并且通过程序内的指针变量均无法访问这块内存则会报这个错误；</span><br><span class="line"></span><br><span class="line">indirectly lost: 间接丢失。当使用了含有指针成员的类或结构体时可能会报这个错误。这类错误无需直接修复，它们总是与definitely lost一起出现，只要修复definitely lost即可。</span><br><span class="line"></span><br><span class="line">possibly lost: 可能丢失。大多数情况下应视为与definitely lost一样需要尽快修复，除非你的程序让一个指针指向一块动态分配的内存（但不是这块内存的起始地址），然后通过运算得到这块内存的起始地址，再释放它。当程序结束时如果一块动态分配的内存没有被释放并且通过程序内的指针变量均无法访问这块内存的起始地址，但可以访问其中的某一部分数据，则会报这个错误。</span><br><span class="line"></span><br><span class="line">stil reachable: 可以访问，未丢失但也未释放。如果程序是正常结束的，那么它可能不会造成程序崩溃，但长时间运行有可能耗尽系统资源。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>其他几种情况，写一个综合的测试程序进行验证。</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// mixed.cpp</span><br><span class="line"></span><br><span class="line">void func() &#123;</span><br><span class="line">    char *ptr = new char[10];</span><br><span class="line">    ptr[10] = &#x27;a&#x27;;   // 内存越界</span><br><span class="line"></span><br><span class="line">    memcpy(ptr + 1, ptr, 5);   // 踩内存</span><br><span class="line"></span><br><span class="line">    delete []ptr;</span><br><span class="line">    delete []ptr; // 重复释放</span><br><span class="line"></span><br><span class="line">    char *p;</span><br><span class="line">    *p = 1;   // 非法指针</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    func();</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译后，用<code>valgrind</code>检测程序。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ g++ -g -o test mixed.cpp</span><br><span class="line">$ valgrind --tool=memcheck --leak-check=full ./test</span><br></pre></td></tr></table></figure>
+
+<p><strong>检测结果</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">==22786== Memcheck, a memory error detector</span><br><span class="line">==22786== Copyright (C) 2002-2017, and GNU GPL&#x27;d, by Julian Seward et al.</span><br><span class="line">==22786== Using Valgrind-3.16.1 and LibVEX; rerun with -h for copyright info</span><br><span class="line">==22786== Command: ./test</span><br><span class="line">==22786== </span><br><span class="line">==22786== Invalid write of size 1      // 内存越界</span><br><span class="line">==22786==    at 0x4007FB: func() (mixed.cpp:6)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786==  Address 0x5a2404a is 0 bytes after a block of size 10 alloc&#x27;d</span><br><span class="line">==22786==    at 0x4C2AC58: operator new[](unsigned long) (vg_replace_malloc.c:431)</span><br><span class="line">==22786==    by 0x4007EE: func() (mixed.cpp:5)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786== </span><br><span class="line">==22786== Source and destination overlap in memcpy(0x5a24041, 0x5a24040, 5)  // 踩内存</span><br><span class="line">==22786==    at 0x4C2E83D: memcpy@@GLIBC_2.14 (vg_replace_strmem.c:1033)</span><br><span class="line">==22786==    by 0x400819: func() (mixed.cpp:8)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786== </span><br><span class="line">==22786== Invalid free() / delete / delete[] / realloc()    // 重复释放</span><br><span class="line">==22786==    at 0x4C2BBAF: operator delete[](void*) (vg_replace_malloc.c:649)</span><br><span class="line">==22786==    by 0x40083F: func() (mixed.cpp:11)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786==  Address 0x5a24040 is 0 bytes inside a block of size 10 free&#x27;d</span><br><span class="line">==22786==    at 0x4C2BBAF: operator delete[](void*) (vg_replace_malloc.c:649)</span><br><span class="line">==22786==    by 0x40082C: func() (mixed.cpp:10)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786==  Block was alloc&#x27;d at</span><br><span class="line">==22786==    at 0x4C2AC58: operator new[](unsigned long) (vg_replace_malloc.c:431)</span><br><span class="line">==22786==    by 0x4007EE: func() (mixed.cpp:5)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786== </span><br><span class="line">==22786== Use of uninitialised value of size 8    // 非法指针</span><br><span class="line">==22786==    at 0x400844: func() (mixed.cpp:14)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786== </span><br><span class="line">==22786== </span><br><span class="line">==22786== Process terminating with default action of signal 11 (SIGSEGV): dumping core</span><br><span class="line">==22786==  Bad permissions for mapped region at address 0x4008B0</span><br><span class="line">==22786==    at 0x400844: func() (mixed.cpp:14)</span><br><span class="line">==22786==    by 0x400851: main (mixed.cpp:18)</span><br><span class="line">==22786== </span><br><span class="line">==22786== HEAP SUMMARY:</span><br><span class="line">==22786==     in use at exit: 0 bytes in 0 blocks</span><br><span class="line">==22786==   total heap usage: 1 allocs, 2 frees, 10 bytes allocated</span><br><span class="line">==22786== </span><br><span class="line">==22786== All heap blocks were freed -- no leaks are possible</span><br><span class="line">==22786== </span><br><span class="line">==22786== Use --track-origins=yes to see where uninitialised values come from  </span><br><span class="line">==22786== For lists of detected and suppressed errors, rerun with: -s</span><br><span class="line">==22786== ERROR SUMMARY: 4 errors from 4 contexts (suppressed: 0 from 0)</span><br><span class="line">Segmentation fault (core dumped)</span><br></pre></td></tr></table></figure>
+
+<p>可见<code>valgrind</code>将上述几种情况都检测出来了。</p>
+<h5 id="2）-Callgrind"><a href="#2）-Callgrind" class="headerlink" title="2） Callgrind"></a>2） Callgrind</h5><p>和<code>gprof</code>类似的分析工具，但它对程序的运行观察更为入微，能给我们提供更多的信息。和<code>gprof</code>不同的是，它不需要在编译源代码时附加特殊选项，但还是推荐加上调试选项。<code>Callgrind</code>收集程序运行时的一些数据，建立函数调用关系图，还可以有选择地进行<code>cache</code>模拟。在运行结束时，它会把分析数据写入一个文件。<code>callgrind_annotate</code>可以把这个文件的内容转化成可读的形式。</p>
+<p><strong>测试程序</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line"></span><br><span class="line">void test() &#123;</span><br><span class="line">    sleep(1);</span><br><span class="line">&#125;</span><br><span class="line">void func() &#123;</span><br><span class="line">    for(int i = 0; i &lt; 10; i++) &#123;</span><br><span class="line">        test();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    func();</span><br><span class="line">    printf(&quot;process is over!\n&quot;);</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译后，用<code>valgrind</code>检测程序。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ g++ -g -o test callgrind.cpp</span><br><span class="line">$ valgrind --tool=callgrind ./test</span><br><span class="line">$ ls</span><br><span class="line">callgrind.cpp  callgrind.out.3490  test</span><br></pre></td></tr></table></figure>
+
+<p><code>callgrind.out.3490</code>就是<code>callgrind</code>生成的文件。</p>
+<p>这里介绍一个图形化性能分析工具<code>Kcachegrind</code></p>
+<p><a target="_blank" rel="noopener" href="http://kcachegrind.sourceforge.net/html/Home.html">Kcachegrind官网地址</a></p>
+<p>下载安装后可以用来分析<code>callgrind</code>生成的文件。</p>
+<p>用<code>Kcachegrind</code>打开<code>callgrind.out.3490</code>这个文件，如下图：</p>
+<p><img src="https://i.loli.net/2021/02/03/tRIXdOg39sapN16.png" alt="callgrind"></p>
+<p>通过图形化，我们可以很直观的知道哪段程序执行慢，并且了解相关调用关系。</p>
+<h5 id="3）-Cachegrind"><a href="#3）-Cachegrind" class="headerlink" title="3） Cachegrind"></a>3） Cachegrind</h5><p><code>Cache</code>分析器，它模拟CPU中的<code>一级缓</code>存和<code>二级缓存</code>，能够精确地指出程序中<code>cache的丢失和命中</code>。如果需要，它还能够为我们提供cache丢失次数，内存引用次数，以及每行代码，每个函数，每个模块，整个程序产生的指令数。这对优化程序有很大的帮助。</p>
+<p>它的使用方法也是：<code>valgrind –tool=cachegrind ./程序名</code></p>
+<h5 id="4）-Helgrind"><a href="#4）-Helgrind" class="headerlink" title="4） Helgrind"></a>4） Helgrind</h5><p>它主要用来检查多线程程序中出现的竞争问题。<code>Helgrind</code>寻找内存中被多个线程访问，而又没有一贯加锁的区域，这些区域往往是线程之间失去同步的地方，而且会导致难以发觉的错误。<code>Helgrind</code>实现了名为<code>Eraser</code>的竞争检测算法，并做了进一步改进，减少了报告错误的次数。不过，<code>Helgrind</code>仍然处于实验状态。</p>
+<p><strong>测试代码：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;pthread.h&gt;</span><br><span class="line"></span><br><span class="line">#define NUM 10</span><br><span class="line">int counter = 0;</span><br><span class="line"></span><br><span class="line">void *threadfunc(void*) &#123;</span><br><span class="line">    for (int i = 0; i &lt; NUM; i++) &#123;</span><br><span class="line">        counter += i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    pthread_t tid1, tid2;</span><br><span class="line"></span><br><span class="line">    pthread_create(&amp;tid1, NULL, &amp;threadfunc, NULL);</span><br><span class="line">    pthread_create(&amp;tid2, NULL, &amp;threadfunc, NULL);</span><br><span class="line"></span><br><span class="line">    // wait for thread to terminate</span><br><span class="line">    pthread_join(tid1, NULL);</span><br><span class="line">    pthread_join(tid2, NULL);</span><br><span class="line"></span><br><span class="line">    printf(&quot;counter = %d\n&quot;, counter);</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译后，用<code>valgrind</code>检测程序。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ g++ -g -o test helgrind.cpp -lpthread</span><br><span class="line">$ valgrind --tool=helgrind ./test</span><br></pre></td></tr></table></figure>
+
+<p><strong>检测结果：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">==27722== Helgrind, a thread error detector</span><br><span class="line">==27722== Copyright (C) 2007-2017, and GNU GPL&#x27;d, by OpenWorks LLP et al.</span><br><span class="line">==27722== Using Valgrind-3.16.1 and LibVEX; rerun with -h for copyright info</span><br><span class="line">==27722== Command: ./test</span><br><span class="line">==27722== </span><br><span class="line">==27722== ---Thread-Announcement------------------------------------------</span><br><span class="line">==27722== </span><br><span class="line">==27722== Thread #3 was created</span><br><span class="line">==27722==    at 0x597589E: clone (in /usr/lib64/libc-2.17.so)</span><br><span class="line">==27722==    by 0x4E43059: do_clone.constprop.4 (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x4E44569: pthread_create@@GLIBC_2.2.5 (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x4C30CFA: pthread_create_WRK (hg_intercepts.c:425)</span><br><span class="line">==27722==    by 0x4C31DD8: pthread_create@* (hg_intercepts.c:458)</span><br><span class="line">==27722==    by 0x400728: main (helgrind.cpp:17)</span><br><span class="line">==27722== </span><br><span class="line">==27722== ---Thread-Announcement------------------------------------------</span><br><span class="line">==27722== </span><br><span class="line">==27722== Thread #2 was created</span><br><span class="line">==27722==    at 0x597589E: clone (in /usr/lib64/libc-2.17.so)</span><br><span class="line">==27722==    by 0x4E43059: do_clone.constprop.4 (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x4E44569: pthread_create@@GLIBC_2.2.5 (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x4C30CFA: pthread_create_WRK (hg_intercepts.c:425)</span><br><span class="line">==27722==    by 0x4C31DD8: pthread_create@* (hg_intercepts.c:458)</span><br><span class="line">==27722==    by 0x40070D: main (helgrind.cpp:16)</span><br><span class="line">==27722== </span><br><span class="line">==27722== ----------------------------------------------------------------</span><br><span class="line">==27722== </span><br><span class="line">==27722== Possible data race during read of size 4 at 0x601048 by thread #3</span><br><span class="line">==27722== Locks held: none</span><br><span class="line">==27722==    at 0x4006CE: threadfunc(void*) (helgrind.cpp:9)</span><br><span class="line">==27722==    by 0x4C30EEE: mythread_wrapper (hg_intercepts.c:387)</span><br><span class="line">==27722==    by 0x4E43EA4: start_thread (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x59758DC: clone (in /usr/lib64/libc-2.17.so)</span><br><span class="line">==27722== </span><br><span class="line">==27722== This conflicts with a previous write of size 4 by thread #2</span><br><span class="line">==27722== Locks held: none</span><br><span class="line">==27722==    at 0x4006D9: threadfunc(void*) (helgrind.cpp:9)</span><br><span class="line">==27722==    by 0x4C30EEE: mythread_wrapper (hg_intercepts.c:387)</span><br><span class="line">==27722==    by 0x4E43EA4: start_thread (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x59758DC: clone (in /usr/lib64/libc-2.17.so)</span><br><span class="line">==27722==  Address 0x601048 is 0 bytes inside data symbol &quot;counter&quot;</span><br><span class="line">==27722== </span><br><span class="line">==27722== ----------------------------------------------------------------</span><br><span class="line">==27722== </span><br><span class="line">==27722== Possible data race during write of size 4 at 0x601048 by thread #3</span><br><span class="line">==27722== Locks held: none</span><br><span class="line">==27722==    at 0x4006D9: threadfunc(void*) (helgrind.cpp:9)</span><br><span class="line">==27722==    by 0x4C30EEE: mythread_wrapper (hg_intercepts.c:387)</span><br><span class="line">==27722==    by 0x4E43EA4: start_thread (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x59758DC: clone (in /usr/lib64/libc-2.17.so)</span><br><span class="line">==27722== </span><br><span class="line">==27722== This conflicts with a previous write of size 4 by thread #2</span><br><span class="line">==27722== Locks held: none</span><br><span class="line">==27722==    at 0x4006D9: threadfunc(void*) (helgrind.cpp:9)</span><br><span class="line">==27722==    by 0x4C30EEE: mythread_wrapper (hg_intercepts.c:387)</span><br><span class="line">==27722==    by 0x4E43EA4: start_thread (in /usr/lib64/libpthread-2.17.so)</span><br><span class="line">==27722==    by 0x59758DC: clone (in /usr/lib64/libc-2.17.so)</span><br><span class="line">==27722==  Address 0x601048 is 0 bytes inside data symbol &quot;counter&quot;</span><br><span class="line">==27722== </span><br><span class="line">counter = 90</span><br><span class="line">==27722== </span><br><span class="line">==27722== Use --history-level=approx or =none to gain increased speed, at</span><br><span class="line">==27722== the cost of reduced accuracy of conflicting-access information</span><br><span class="line">==27722== For lists of detected and suppressed errors, rerun with: -s</span><br><span class="line">==27722== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)</span><br></pre></td></tr></table></figure>
+
+<p>从上述结果知道，<code>valgrind</code>分析出了竞态的情况。</p>
+<p>5） Massif</p>
+<p>堆栈分析器，它能测量程序在堆栈中使用了多少内存，告诉我们堆块，堆管理块和栈的大小。<code>Massif</code>能帮助我们减少内存的使用，在带有虚拟内存的现代系统中，它还能够加速我们程序的运行，减少程序停留在交换区中的几率。</p>
+<p><code>Massif</code>对内存的分配和释放做<code>profile</code>。程序开发者通过它可以深入了解程序的内存使用行为，从而对内存使用进行优化。这个功能对<code>C++</code>尤其有用，因为<code>C++</code>有很多隐藏的内存分配和释放。</p>
+<p>此外，<code>lackey</code> 和 <code>nulgrind</code> 也会提供。<code>Lackey</code> 是小型工具，很少用到；<code>Nulgrind</code> 只是为开发者展示如何创建一个工具。这里就不做介绍了。</p>
+<p><strong>参考列表</strong>：</p>
+<p><a target="_blank" rel="noopener" href="https://ivanzz1001.github.io/records/post/cplusplus/2018/11/14/cpluscplus-valgrind_usage#27-memcheck%E7%BB%BC%E5%90%88%E7%A4%BA%E4%BE%8B">valgrind的使用</a></p>
+<p><a target="_blank" rel="noopener" href="https://learnku.com/articles/46663">Linux 下利用 valgrind工具进行内存泄露检测和性能分析</a></p>
+<p><a target="_blank" rel="noopener" href="http://easy.ac.cn/blog/001444131836556a2f56413f49f4f0992fa1375df8b06dc000">valgrind详解与使用实例</a></p>
+<p><a target="_blank" rel="noopener" href="http://senlinzhan.github.io/2017/12/31/valgrind/">使用 Valgrind 检测 C++内存泄漏</a></p>
+<p><a target="_blank" rel="noopener" href="https://soaringleefighting.github.io/2020/07/24/%E3%80%90Tools%E7%B3%BB%E5%88%97%E3%80%91%E5%88%A9%E7%94%A8%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7valgrind+KCachegrind%E5%88%86%E6%9E%90/">利用性能分析工具valgrind+KCachegrind分析</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/qcloud1001/p/8584077.html">Linux性能分析工具与图形化方法</a></p>
+<html>
+    <table style="margin-left:auto; margin-right: auto;">
+        <tr>
+            <td>
+             <img src="https://i.loli.net/2021/02/03/SXE7MICDbUh9Q3J.jpg" width = "110" height = "110"/>
+            </td>
+            <td>
+<span>本文作者</span>：<strong><span style="font-size: 14px;"><a href="https://github.com/zhuyongchn" target="_blank">zhuyong</a></span></strong> <br>
+<span>原文链接</span>：<strong><span style="font-size: 14px;"><a href="https://zhuyongchn.github.io" target="_blank">https://zhuyongchn.github.io</a></span></strong> <br>
+<span class="essaySuffix-right-title">关于博主</span>：欢迎关注左侧公众号，获取更多干货。<br>
+<span class="essaySuffix-right-title">版权声明</span>：本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" alt="BY-NC-SA" title="BY-NC-SA" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！<br>
+            </td>
+        </tr>
+    </table>
+</html>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/02/02/valgrind%E5%92%8CKcachegrind%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E8%AF%A6%E8%A7%A3/" data-id="clgrezjwu0001skvt25rgbtlg" data-title="valgrind和Kcachegrind性能分析工具详解" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/02/08/webrtc%20sdp(%E4%BC%9A%E8%AF%9D%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE)%E8%AF%A6%E8%A7%A3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          sdp(会话传输协议)详解
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/04/22/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2%E6%96%87%E7%AB%A0/">我的第一篇博客文章</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/22/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/16/GDB%E8%B0%83%E8%AF%95%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/">GDB调试命令详解</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/08/webrtc%20sdp(%E4%BC%9A%E8%AF%9D%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE)%E8%AF%A6%E8%A7%A3/">sdp(会话传输协议)详解</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/02/valgrind%E5%92%8CKcachegrind%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E8%AF%A6%E8%A7%A3/">valgrind和Kcachegrind性能分析工具详解</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
